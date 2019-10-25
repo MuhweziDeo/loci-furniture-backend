@@ -24,3 +24,32 @@ class UserDto:
         'password_confirmation': fields.String(required=True, description='user new password'),
     })
 
+class CategoryDto:
+    """DATA TRANSFER OPERATIONS"""
+    api = Namespace('category', description='category related options')
+    category = api.model('category', {
+        'name': fields.String(required=True, description='category name'),
+        'created': fields.String(required=False, description='create date'),
+        'updated': fields.String(required=False, description='create date'),
+        'id': fields.String(required=False, description='id'),
+
+    })
+
+class ProductDto:
+    api = Namespace("product", description="product related options")
+    product = api.model("product", {
+        'name': fields.String(required=True, description='product name'),
+        'description': fields.String(required=True, description='product description'),
+        'created': fields.String(required=False, description='create date'),
+        'updated': fields.String(required=False, description='create date'),
+        'id': fields.String(required=False, description='id'),
+
+    })
+
+    product_update =  api.model("update_product", {
+        'name': fields.String(required=False, description='product name'),
+        'description': fields.String(required=False, description='product description'),
+        'created': fields.String(required=False, description='create date'),
+        'updated': fields.String(required=False, description='create date'),
+        'id': fields.String(required=False, description='id'),
+    })
