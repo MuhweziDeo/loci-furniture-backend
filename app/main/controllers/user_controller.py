@@ -1,9 +1,10 @@
-from flask import request, jsonify, abort
-from flask_restplus import Resource, reqparse
+from flask import request
+from flask_restplus import Resource
 from ..utils.dto import UserDto
-from ..services.user_service import create_user, get_user_by_username, get_user_by_email, get_all_users, verify_user, update_password
+from ..services.user_service import create_user, get_user_by_username, get_user_by_email, get_all_users, verify_user, \
+    update_password
 from ..models.user import User
-from ..utils.decorator import login_required, admin_required
+from ..utils.decorator import login_required
 
 api = UserDto.api
 _user = UserDto.user
@@ -26,14 +27,14 @@ class UserList(Resource):
         data = request.json
         existing_user_by_email = get_user_by_username(data['email'])
         existing_user_by_username = get_user_by_username(data['username'])
-        if(existing_user_by_email or existing_user_by_username):
+        if existing_user_by_email or existing_user_by_username:
             message = 'Email already taken' if existing_user_by_email else 'Username already taken'
             field = 'email' if existing_user_by_email else 'username'
             return {
-                "message": message,
-                "field": field,
-                "success": False
-            }, 409
+                       "message": message,
+                       "field": field,
+                       "success": False
+                   }, 409
         user = create_user(data)
         user_json = user.serialize()
         user.send_email_confirmation_email()
@@ -42,7 +43,7 @@ class UserList(Resource):
             "message": "Signed Up successfully Please check email to complete registration",
             "success": True
         }
-  
+
 
 @api.route('/login')
 class UserLogin(Resource):
@@ -56,9 +57,9 @@ class UserLogin(Resource):
         user = get_user_by_email(email)
         if user is None:
             return {
-                "message": "User Not Found",
-                "field": 'username'
-            }, 404
+                       "message": "User Not Found",
+                       "field": 'username'
+                   }, 404
         if user.check_password(password):
             token = user.encode_token()
             return {
@@ -69,11 +70,12 @@ class UserLogin(Resource):
                     "isAdmin": user.admin,
                     "token": token.decode("utf-8")
                 }
-            }     
+            }
         return {
-            "message": "Invalid password",
-            "success": False
-        }, 401
+                   "message": "Invalid password",
+                   "success": False
+               }, 401
+
 
 @api.route('/email-confirmation/<token>')
 class UserEmailConfirmation(Resource):
@@ -83,17 +85,17 @@ class UserEmailConfirmation(Resource):
             user = get_user_by_email(User.decode_auth_token(token)["data"]["email"])
             if user is None:
                 return {
-                    "success": False,
-                    "message": "User not Found"
-                }, 404
+                           "success": False,
+                           "message": "User not Found"
+                       }, 404
             if user.isVerified:
                 return {
-                    "message": "User already verified",
-                    "success": False
-                }, 400 
-            verify_user(user) 
+                           "message": "User already verified",
+                           "success": False
+                       }, 400
+            verify_user(user)
             data = user.serialize()
-            token = user.encode_token()   
+            token = user.encode_token()
             return {
                 "message": "Email verification completed successfully",
                 "data": data,
@@ -102,9 +104,10 @@ class UserEmailConfirmation(Resource):
         except Exception as e:
             print(e)
             return {
-                "success": False,
-                "message": "Link has expired or is invalid"
-            }, 500
+                       "success": False,
+                       "message": "Link has expired or is invalid"
+                   }, 500
+
 
 @api.route('/password-reset/request/')
 class PasswordResetRequest(Resource):
@@ -117,7 +120,8 @@ class PasswordResetRequest(Resource):
         return {
             "message": "Password reset link has been sent to your email",
             "success": True
-        }     
+        }
+
 
 @api.route('/password-reset/confirm/<token>')
 class PasswordResetConfirm(Resource):
@@ -129,21 +133,20 @@ class PasswordResetConfirm(Resource):
             user = get_user_by_email(payload["data"]["email"])
             if not user:
                 return {
-                    "message": "User not found",
-                    "success": False
-                }, 404
+                           "message": "User not found",
+                           "success": False
+                       }, 404
             data = request.json
             update_password(user, data['password'])
             return {
                 "message": "Password successfully updated",
                 "success": True
-            } 
-        except Exception:
+            }
+        except Exception as e:
             return {
-                "message": "Something went wrong",
+                "message": str(e) or "Something went wrong",
                 "success": False
             }
-            
 
 
 @api.route('/me')
@@ -156,13 +159,15 @@ class Me(Resource):
             user = get_user_by_email(payload["data"]["email"])
             if not user:
                 return {
-                    "message": "User not found",
-                    "success": False
-                }, 404
+                           "message": "User not found",
+                           "success": False
+                       }, 404
             data = user.serialize()
             return {
                 "data": data
-            }    
+            }
         except Exception as e:
-            return e
-        
+            return {
+                "message": str(e) or "Couldn't fetch profile",
+                "success": False
+            }

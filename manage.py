@@ -13,7 +13,9 @@ app.app_context().push()
 manager = Manager(app)
 migrate = Migrate(app, db)
 manager.add_command('db', MigrateCommand)
-
+from app.main.models.user import User
+from app.main.models.products import Product
+from app.main.models.category import Category
 
 @manager.command
 def run():

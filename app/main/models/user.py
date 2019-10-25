@@ -1,10 +1,9 @@
-from .. import db, flask_bcrypt, mail
-from flask_mail import Message
-from flask import render_template, url_for
+from .. import db, flask_bcrypt
 import jwt
 import datetime
 from ..utils.send_email import send_email
 import os
+
 
 class User(db.Model):
     """ User Model for storing user related details """
@@ -45,7 +44,7 @@ class User(db.Model):
     def encode_token(self):
         try:
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1, seconds=5),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),
                 'iat': datetime.datetime.utcnow(),
                 "data": {
                     "id": self.id,
@@ -56,27 +55,26 @@ class User(db.Model):
             }
             return jwt.encode(
                 payload,
-                os.getenv("SECRET_KEY", "randomkey"),
+                os.getenv("SECRET_KEY", "randomly"),
                 algorithm='HS256'
             )
         except Exception as e:
             return e
 
-    @staticmethod 
+    @staticmethod
     def decode_auth_token(auth_token):
-            try:
-                payload = jwt.decode(auth_token, os.getenv("SECRET_KEY", "randomkey"))
-                return payload
-            except jwt.ExpiredSignatureError:
-                return 'Signature expired. Please log in again.'
-            except jwt.InvalidTokenError:
-                return 'Invalid token. Please log in again.'
-
+        try:
+            payload = jwt.decode(auth_token, os.getenv("SECRET_KEY", "randomly"))
+            return payload
+        except jwt.ExpiredSignatureError:
+            return 'Signature expired. Please log in again.'
+        except jwt.InvalidTokenError:
+            return 'Invalid token. Please log in again.'
 
     def send_email_confirmation_email(self):
         token = self.encode_token()
-        activation_url = os.getenv('AUTH_URL', 
-        "http://127.0.0.1:5000/api/v1/user/email-confirmation/")
+        activation_url = os.getenv('AUTH_URL',
+                                   "http://127.0.0.1:5000/api/v1/user/email-confirmation/")
         confirmation_link = str(activation_url) + "{}".format(token.decode('utf-8'))
         print(confirmation_link)
         data = {
@@ -84,13 +82,13 @@ class User(db.Model):
             "email": self.email,
             "confirmation_link": confirmation_link
         }
-        send_email("Email Confirmation", [self.email], data,"aggrey256@gmail.com", 
-        "confirmation_email.html")
+        send_email("Email Confirmation", [self.email], data, "aggrey256@gmail.com",
+                   "confirmation_email.html")
 
     def send_reset_password_email(self):
         token = self.encode_token()
-        auth_url = os.getenv('AUTH_URL', 
-        "http://127.0.0.1:5000/api/v1/user/password-reset/confirm/")
+        auth_url = os.getenv('AUTH_URL',
+                             "http://127.0.0.1:5000/api/v1/user/password-reset/confirm/")
         reset_password_link = str(auth_url) + "{}".format(token.decode('utf-8'))
         print(reset_password_link)
         data = {
@@ -99,6 +97,5 @@ class User(db.Model):
             "confirmation_link": reset_password_link
         }
 
-        send_email("Password Request Email", [self.email], data,"aggrey256@gmail.com", 
-        "password_reset_email.html")
-
+        send_email("Password Request Email", [self.email], data, "aggrey256@gmail.com",
+                   "password_reset_email.html")
