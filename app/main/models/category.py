@@ -1,4 +1,4 @@
-from .. import db
+from .. import db, ma
 from datetime import datetime
 
 
@@ -20,3 +20,9 @@ class Category(db.Model):
             "id": self.id,
             "updated": str(self.updated)
         }
+
+
+class CategorySchema(ma.ModelSchema):
+
+    class Meta:
+        model = Category

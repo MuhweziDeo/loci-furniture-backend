@@ -53,3 +53,18 @@ class ProductDto:
         'updated': fields.String(required=False, description='create date'),
         'id': fields.String(required=False, description='id'),
     })
+
+
+class CartDto:
+    api = Namespace("cart", description="cart related options")
+    cart = api.model("cart", {
+        'product_id': fields.Integer(required=True, description='product id'),
+        'quantity': fields.Integer(required=True, description='quantity'),
+
+    })
+
+    update_cart = api.model("cart", {
+        'product_id': fields.Integer(required=False, description='product id'),
+        'quantity': fields.Integer(required=False, description='quantity'),
+
+    })

@@ -4,6 +4,7 @@ from flask import Blueprint
 from .main.controllers.user_controller import api as user_ns
 from .main.controllers.category_controller import api as category_ns
 from .main.controllers.product_controller import api as product_ns
+from .main.controllers.cart_controller import api as cart_ns
 
 blueprint = Blueprint('api', __name__, url_prefix='/api/v1')
 
@@ -16,3 +17,4 @@ api = Api(blueprint,
 api.add_namespace(user_ns, path='/user')
 api.add_namespace(category_ns, path='/category')
 api.add_namespace(product_ns, path='/product')
+api.add_namespace(cart_ns, path='/cart')

@@ -5,6 +5,7 @@ from ..utils.dto import ProductDto
 from ..utils.decorator import admin_required
 from ..utils.save_image import save_image
 from ..services import product_service
+from ..models.products import products_schema, product_schema
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import  BadRequestKeyError
 from ..services import product_service, category_service
@@ -16,9 +17,11 @@ _product = ProductDto.product
 @api.route("")
 class Products(Resource):
 
-    @api.marshal_list_with(_product, envelope="data")
     def get(self):
-        return product_service.get_all_products()
+        products = product_service.get_all_products()
+        return {
+            "data": products_schema.dump(products)
+        }
 
     @admin_required
     def post(self):
@@ -47,9 +50,8 @@ class Products(Resource):
             }
 
             product = product_service.create_product(data)
-            _json = product.serialze()
             return {
-                "data": _json,
+                "data": product_schema.dump(product),
                 "message": "Product created successfully",
                 "success": True
             }

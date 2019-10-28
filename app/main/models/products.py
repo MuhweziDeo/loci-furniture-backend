@@ -1,5 +1,6 @@
-from .. import db
+from .. import db, ma
 from datetime import datetime
+from .category import CategorySchema
 
 
 class Product(db.Model):
@@ -15,11 +16,11 @@ class Product(db.Model):
     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
     updated = db.Column(db.DateTime, onupdate=datetime.utcnow())
     category_id = db.Column(db.Integer, db.ForeignKey("category.id"), nullable=False)
-    categories = db.relationship("Category", backref="product", lazy=True, uselist=False)
+    category = db.relationship("Category", backref="products", lazy=True, uselist=False)
     price = db.Column(db.Float, nullable=False)
 
     def __repr__(self):
-        return self.name
+        return self.name        
 
     def serialze(self):
         return {
@@ -32,3 +33,12 @@ class Product(db.Model):
             "description": self.description,
             "price": self.price
         }
+
+class ProductSchema(ma.ModelSchema):
+    category = ma.Nested(CategorySchema)
+    class Meta:
+        model = Product
+        # fields = ("c",)
+
+product_schema = ProductSchema()
+products_schema = ProductSchema(many=True)

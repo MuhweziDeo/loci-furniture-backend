@@ -1,5 +1,4 @@
 from app.main.models.category import Category
-from app.main.services.user_service import save_changes
 from .. import db
 
 def find_all_categories():
