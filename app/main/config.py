@@ -17,7 +17,7 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://muhwezi:password@localhost:3306/loci'
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root@localhost:3306/loci'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 

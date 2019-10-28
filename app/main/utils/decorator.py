@@ -23,7 +23,10 @@ def login_required(f):
                        }, 403
             return f(*args, **kwargs)
         except Exception as e:
-            return e
+            return {
+              "message": "Session Expired Please Login Again",
+              "success": False
+            }
 
     return decorated
 

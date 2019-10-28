@@ -16,6 +16,7 @@ manager.add_command('db', MigrateCommand)
 from app.main.models.user import User
 from app.main.models.products import Product
 from app.main.models.category import Category
+from app.main.models.cart import Cart 
 
 @manager.command
 def run():
